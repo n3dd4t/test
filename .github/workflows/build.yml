@@ -1,1 +1,34 @@
+name: Build
 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up MinGW
+      run: |
+        choco install mingw -y
+        choco install mingw-w64-x86_64-toolchain -y
+
+    - name: Build DLL
+      run: |
+        g++ -shared -o test.dll test.cpp -lMinHook
+      env:
+        PATH: "C:/msys64/mingw64/bin:${{ env.PATH }}"
+
+    - name: Upload DLL
+      uses: actions/upload-artifact@v2
+      with:
+        name: test.dll
+        path: test.dll
